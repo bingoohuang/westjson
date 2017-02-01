@@ -15,4 +15,18 @@ public class WestJsonMinifierTest {
         String minify = new WestJsonMinifier(json).minify();
         assertThat(minify).isEqualTo("{name:null}");
     }
+
+    @Test
+    public void testEmpty() {
+        val json = "{\"name\":\"\"}";
+        String minify = new WestJsonMinifier(json).minify();
+        assertThat(minify).isEqualTo("{name:}");
+    }
+
+    @Test
+    public void testEmpty2() {
+        val json = "{\"name\":\"\",age:32}";
+        String minify = new WestJsonMinifier(json).minify();
+        assertThat(minify).isEqualTo("{name:,age:32}");
+    }
 }

@@ -5,13 +5,19 @@ package com.github.bingoohuang.westjson.impl;
  */
 public abstract class WestJsonUtils {
     public static boolean isMeta(char ch) {
-        return ch == ',' || ch == ':'
-                || ch == '{' || ch == '}'
-                || ch == '[' || ch == ']';
+        return ch == ',' || ch == ':' || isBoundary(ch);
     }
 
     public static boolean isBoundary(char p) {
-        return p == '}' || p == ']' || p == '{' || p == '[';
+        return isRBoundary(p) || isLBoundary(p);
+    }
+
+    public static boolean isLBoundary(char p) {
+        return p == '{' || p == '[';
+    }
+
+    public static boolean isRBoundary(char p) {
+        return p == '}' || p == ']';
     }
 
     public static boolean isRKey(String json, int i, int ii) {

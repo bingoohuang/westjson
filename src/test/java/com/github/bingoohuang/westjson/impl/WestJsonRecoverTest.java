@@ -24,6 +24,33 @@ public class WestJsonRecoverTest {
     }
 
     @Test
+    public void testEmpty() {
+        String str = "{expiredTime:}";
+        String recover = new WestJsonRecover(str).recover();
+        assertThat(recover).isEqualTo("{\"expiredTime\":\"\"}");
+    }
+
+    @Test
+    public void testEmpty2() {
+        String str = "{name:,age:32}";
+        String recover = new WestJsonRecover(str).recover();
+        assertThat(recover).isEqualTo("{\"name\":\"\",\"age\":\"32\"}");
+    }
+
+    @Test
+    public void parseArray() {
+        val json = "{record:[{calldate:20130101},{calldate:20130101}]}";
+        val expected = "{\"record\":[{\"calldate\":\"20130101\"},{\"calldate\":\"20130101\"}]}";
+        String recover = new WestJsonRecover(json).recover();
+        assertThat(recover).isEqualTo(expected);
+
+        val json2 = "{all:5.35,record:[{calldate:20130101},{calldate:20130101}]}";
+        val expected2 = "{\"all\":\"5.35\",\"record\":[{\"calldate\":\"20130101\"},{\"calldate\":\"20130101\"}]}";
+        String recover2 = new WestJsonRecover(json2).recover();
+        assertThat(recover2).isEqualTo(expected2);
+    }
+
+    @Test
     public void testSimilarNull1() {
         String str = "{expiredTime:nullable}";
         String recover = new WestJsonRecover(str).recover();

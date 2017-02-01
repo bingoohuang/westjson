@@ -62,7 +62,7 @@ public class WestJsonRecover {
         if (!isBoundary(p)) res.p('"');
         res.p(ch);
         quoted = n == '"';
-        if (!quoted && !isBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+        if (!quoted && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
 
         return true;
     }
