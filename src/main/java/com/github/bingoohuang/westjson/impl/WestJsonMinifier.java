@@ -45,7 +45,7 @@ public class WestJsonMinifier {
     }
 
     private boolean processQuote(char ch) {
-        if (ch != '"') return false;
+        if (!(ch == '"' || ch == '\'')) return false;
 
         if (inQuote) {
             minified.append(sub);
@@ -62,13 +62,16 @@ public class WestJsonMinifier {
     private boolean processQuotedMeta(char ch) {
         if (!(inQuote && isMeta(ch))) return false;
 
-        if (++escapeTimes == 2) {
+        ++escapeTimes;
+        if (escapeTimes == 1) {
+            sub.append('\\').append(ch);
+            firstEscapePos = sub.length() - 2;
+        } else if (escapeTimes == 2) {
             minified.append('"');
             sub.deleteCharAt(firstEscapePos);
             sub.append(ch);
-        } else {
-            sub.append('\\').append(ch);
-            firstEscapePos = sub.length() - 2;
+        }  else {
+            sub.append(ch);
         }
 
         return true;

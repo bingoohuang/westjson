@@ -14,7 +14,5 @@ public class WestJsonMinifierTest {
         val json = "{\"name\":null}";
         String minify = new WestJsonMinifier(json).minify();
         assertThat(minify).isEqualTo("{name:null}");
-
-
     }
 }

@@ -1,5 +1,6 @@
 package com.github.bingoohuang.westjson.impl;
 
+import lombok.val;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -23,6 +24,20 @@ public class WestJsonRecoverTest {
     }
 
     @Test
+    public void testSimilarNull1() {
+        String str = "{expiredTime:nullable}";
+        String recover = new WestJsonRecover(str).recover();
+        assertThat(recover).isEqualTo("{\"expiredTime\":\"nullable\"}");
+    }
+
+    @Test
+    public void testSimilarNull2() {
+        String str = "{expiredTime:abcnull}";
+        String recover = new WestJsonRecover(str).recover();
+        assertThat(recover).isEqualTo("{\"expiredTime\":\"abcnull\"}");
+    }
+
+    @Test
     public void testTrue() {
         String str = "{expiredTime:true}";
         String recover = new WestJsonRecover(str).recover();
@@ -37,7 +52,7 @@ public class WestJsonRecoverTest {
     }
 
     @Test
-    public void test() {
+    public void test1() {
         String str = "{binding:18602506990,domain:10010.com,expiredTime:{}," +
                 "fromAction:null,ip:192.168.1.108,minituesToLive:{}," +
                 "safeKeyName:c30b87b5-80ae-4e63-a27d-7c9bbb48a623," +
@@ -63,5 +78,13 @@ public class WestJsonRecoverTest {
         String recover = new WestJsonRecover(str).recover();
         String minify = new WestJsonMinifier(recover).minify();
         assertThat(minify).isEqualTo(str);
+    }
+
+    @Test
+    public void test2() {
+        val text = "{'jdbcUrl':'jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8'}";
+        val text2 = "{jdbcUrl:\"jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8\"}";
+        String minify = new WestJsonMinifier(text).minify();
+        assertThat(minify).isEqualTo(text2);
     }
 }
