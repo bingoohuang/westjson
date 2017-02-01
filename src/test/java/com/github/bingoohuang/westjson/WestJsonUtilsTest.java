@@ -1,6 +1,6 @@
 package com.github.bingoohuang.westjson;
 
-import com.github.bingoohuang.westjson.impl.WestJsonUtils;
+import com.github.bingoohuang.westjson.utils.WestJsonUtils;
 import org.junit.Test;
 
 /**

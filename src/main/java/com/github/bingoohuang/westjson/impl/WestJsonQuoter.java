@@ -1,26 +1,30 @@
 package com.github.bingoohuang.westjson.impl;
 
-import static com.github.bingoohuang.westjson.impl.WestJsonUtils.*;
+import com.github.bingoohuang.westjson.utils.StrBuilder;
+
+import static com.github.bingoohuang.westjson.utils.WestJsonUtils.*;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
-public class WestJsonRecover {
-    private final String json;
-    private final StrBuilder res;
-    private final int ii;
+public class WestJsonQuoter {
+    private String json;
+    private StrBuilder res;
+    private int ii;
 
     int i = 0;
     boolean quoted = false;
     char p, ch, n;
 
-    public WestJsonRecover(String json) {
+    public void init(String json) {
         this.json = json;
         this.ii = json.length();
         this.res = new StrBuilder((int) (json.length() * 1.5));
     }
 
-    public String recover() {
+    public String quote(String json) {
+        init(json);
+
         for (; i < ii; ++i) {
             p = i == 0 ? ' ' : json.charAt(i - 1);
             ch = json.charAt(i);
@@ -48,7 +52,7 @@ public class WestJsonRecover {
     }
 
     private boolean processLeftBrace() {
-        if (ch != '{') return false;
+        if (!isLBoundary(ch)) return false;
 
         res.p(ch);
         quoted = n == '"';
@@ -84,7 +88,7 @@ public class WestJsonRecover {
 
 
     private boolean processRightBrace() {
-        if (ch != '}') return false;
+        if (!isRBoundary(ch)) return false;
 
         if (!quoted && !isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
         res.p(ch);

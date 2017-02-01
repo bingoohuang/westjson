@@ -1,14 +1,16 @@
 package com.github.bingoohuang.westjson.impl;
 
-import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isMeta;
+import com.github.bingoohuang.westjson.utils.StrBuilder;
+
+import static com.github.bingoohuang.westjson.utils.WestJsonUtils.isMeta;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
-public class WestJsonMinifier {
-    private final String json;
-    private final StrBuilder minified;
-    private final int ii;
+public class WestJsonUnquoter {
+    private String json;
+    private StrBuilder minified;
+    private int ii;
 
     private boolean inQuote = false;
     private StrBuilder sub = new StrBuilder();
@@ -17,13 +19,11 @@ public class WestJsonMinifier {
     private StrBuilder curr;
     private int i = 0;
 
-    public WestJsonMinifier(String json) {
+    public String unquote(String json) {
         this.json = json;
         this.ii = json.length();
         this.minified = new StrBuilder(json.length());
-    }
 
-    public String minify() {
         curr = minified;
         for (; i < ii; ++i) {
             char ch = json.charAt(i);

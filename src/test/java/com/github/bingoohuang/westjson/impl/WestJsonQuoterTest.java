@@ -8,32 +8,32 @@ import static com.google.common.truth.Truth.assertThat;
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
-public class WestJsonRecoverTest {
+public class WestJsonQuoterTest {
     @Test
     public void simple() {
         String str = "{expiredTime:{}}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":{}}");
     }
 
     @Test
     public void testNull() {
         String str = "{expiredTime:null}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":null}");
     }
 
     @Test
     public void testEmpty() {
         String str = "{expiredTime:}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":\"\"}");
     }
 
     @Test
     public void testEmpty2() {
         String str = "{name:,age:32}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"name\":\"\",\"age\":\"32\"}");
     }
 
@@ -41,40 +41,43 @@ public class WestJsonRecoverTest {
     public void parseArray() {
         val json = "{record:[{calldate:20130101},{calldate:20130101}]}";
         val expected = "{\"record\":[{\"calldate\":\"20130101\"},{\"calldate\":\"20130101\"}]}";
-        String recover = new WestJsonRecover(json).recover();
+        String recover = new WestJsonQuoter().quote(json);
         assertThat(recover).isEqualTo(expected);
 
         val json2 = "{all:5.35,record:[{calldate:20130101},{calldate:20130101}]}";
         val expected2 = "{\"all\":\"5.35\",\"record\":[{\"calldate\":\"20130101\"},{\"calldate\":\"20130101\"}]}";
-        String recover2 = new WestJsonRecover(json2).recover();
+        String recover2 = new WestJsonQuoter().quote(json2);
         assertThat(recover2).isEqualTo(expected2);
+
+        String minified2 = new WestJsonUnquoter().unquote(expected2);
+        assertThat(minified2).isEqualTo(json2);
     }
 
     @Test
     public void testSimilarNull1() {
         String str = "{expiredTime:nullable}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":\"nullable\"}");
     }
 
     @Test
     public void testSimilarNull2() {
         String str = "{expiredTime:abcnull}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":\"abcnull\"}");
     }
 
     @Test
     public void testTrue() {
         String str = "{expiredTime:true}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":true}");
     }
 
     @Test
     public void testFalse() {
         String str = "{expiredTime:false}";
-        String recover = new WestJsonRecover(str).recover();
+        String recover = new WestJsonQuoter().quote(str);
         assertThat(recover).isEqualTo("{\"expiredTime\":false}");
     }
 
@@ -102,8 +105,8 @@ public class WestJsonRecoverTest {
                 "securitySafekey:c06a4f76-049d-455c-94ad-d5cd03c562e2," +
                 "securityToken:71e0f055-2621-41e7-900f-7cd3327ac872," +
                 "stepAction:98bde530-5194-496e-b1d4-b091067f8142}";
-        String recover = new WestJsonRecover(str).recover();
-        String minify = new WestJsonMinifier(recover).minify();
+        String recover = new WestJsonQuoter().quote(str);
+        String minify = new WestJsonUnquoter().unquote(recover);
         assertThat(minify).isEqualTo(str);
     }
 
@@ -111,7 +114,7 @@ public class WestJsonRecoverTest {
     public void test2() {
         val text = "{'jdbcUrl':'jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8'}";
         val text2 = "{jdbcUrl:\"jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8\"}";
-        String minify = new WestJsonMinifier(text).minify();
+        String minify = new WestJsonUnquoter().unquote(text);
         assertThat(minify).isEqualTo(text2);
     }
 }

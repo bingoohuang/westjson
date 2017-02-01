@@ -1,4 +1,4 @@
-package com.github.bingoohuang.westjson.impl;
+package com.github.bingoohuang.westjson.utils;
 
 public class StrBuilder {
     private StringBuilder sb;

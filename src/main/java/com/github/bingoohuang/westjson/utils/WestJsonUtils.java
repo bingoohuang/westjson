@@ -1,4 +1,9 @@
-package com.github.bingoohuang.westjson.impl;
+package com.github.bingoohuang.westjson.utils;
+
+import com.google.common.base.Charsets;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
@@ -61,5 +66,17 @@ public abstract class WestJsonUtils {
                 && json.charAt(i + 2) == 'u'
                 && json.charAt(i + 3) == 'l'
                 && json.charAt(i + 4) == 'l';
+    }
+
+    public static int bytesLen(String strValue) {
+        return strValue.getBytes(Charsets.UTF_8).length;
+    }
+
+    public static <K, V> Map<V, K> invert(Map<K, V> source) {
+        Map<V, K> reversedMap = new HashMap<V, K>(source.size());
+        for (Map.Entry<K, V> entry : source.entrySet())
+            reversedMap.put(entry.getValue(), entry.getKey());
+
+        return reversedMap;
     }
 }
