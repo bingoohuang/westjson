@@ -7,20 +7,20 @@ import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isMeta;
  */
 public class WestJsonMinifier {
     private final String json;
-    private final StringBuilder minified;
+    private final StrBuilder minified;
     private final int ii;
 
     private boolean inQuote = false;
-    private StringBuilder sub = new StringBuilder();
-    private int firstEscapePos = -1;
+    private StrBuilder sub = new StrBuilder();
+    private int escapePos = -1;
     private int escapeTimes = 0;
-    private StringBuilder curr;
+    private StrBuilder curr;
     private int i = 0;
 
     public WestJsonMinifier(String json) {
         this.json = json;
         this.ii = json.length();
-        this.minified = new StringBuilder(json.length());
+        this.minified = new StrBuilder(json.length());
     }
 
     public String minify() {
@@ -31,7 +31,7 @@ public class WestJsonMinifier {
             if (processQuote(ch)) continue;
             if (processQuotedMeta(ch)) continue;
 
-            curr.append(ch);
+            curr.p(ch);
         }
 
         return minified.toString();
@@ -40,7 +40,7 @@ public class WestJsonMinifier {
     private boolean processEsacpe(char ch) {
         if (ch != '\\') return false;
 
-        curr.append(ch).append(json.charAt(++i));
+        curr.p(ch).p(json.charAt(++i));
         return true;
     }
 
@@ -48,14 +48,15 @@ public class WestJsonMinifier {
         if (!(ch == '"' || ch == '\'')) return false;
 
         if (inQuote) {
-            minified.append(sub);
-            if (escapeTimes >= 2) minified.append('"');
+            minified.p(sub);
+            if (escapeTimes >= 2) minified.p('"');
         } else {
-            sub.setLength(0);
+            sub.empty();
             escapeTimes = 0;
         }
+
         inQuote = !inQuote;
-        curr = (inQuote ? sub : minified);
+        curr = inQuote ? sub : minified;
         return true;
     }
 
@@ -64,14 +65,14 @@ public class WestJsonMinifier {
 
         ++escapeTimes;
         if (escapeTimes == 1) {
-            sub.append('\\').append(ch);
-            firstEscapePos = sub.length() - 2;
+            sub.p('\\').p(ch);
+            escapePos = sub.len() - 2;
         } else if (escapeTimes == 2) {
-            minified.append('"');
-            sub.deleteCharAt(firstEscapePos);
-            sub.append(ch);
-        }  else {
-            sub.append(ch);
+            minified.p('"');
+            sub.deleteCharAt(escapePos);
+            sub.p(ch);
+        } else {
+            sub.p(ch);
         }
 
         return true;
