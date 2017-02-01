@@ -69,6 +69,24 @@ public class HelloWordTest {
     }
 
     @Test
+    public void helloColon() {
+        val person = new Person("bin:goo", 123);
+        val json = new WestJson().json(person);
+        assertThat(json).isEqualTo("{age:123,name:bin\\:goo}");
+
+        val person2 = new Person("bin:g:oo", 123);
+        val json2 = new WestJson().json(person2);
+        assertThat(json2).isEqualTo("{age:123,name:\"bin:g:oo\"}");
+    }
+
+    @Test
+    public void helloColonParse() {
+        val person = new Person("bin:goo", 123);
+        val parsed = new WestJson().parse("{age:123,name:bin\\:goo}", Person.class);
+        assertThat(parsed).isEqualTo(person);
+    }
+
+    @Test
     public void hello2Comma() {
         val person = new Person("bin,,goo", 123);
         val json = new WestJson().json(person);
