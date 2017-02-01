@@ -7,7 +7,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -17,11 +16,17 @@ import static com.google.common.truth.Truth.assertThat;
  */
 public class DemoTest {
     @Test
-    public void demo() throws IOException {
-        String keyMapping = readClasspathFile("cdr/demo.0.thin.keyMapping.json");
-        String valueMapping = readClasspathFile("cdr/demo.0.thin.valueMapping.json");
-        String raw = readClasspathFile("cdr/demo.1.raw.json");
-        String unquoted = readClasspathFile("cdr/demo.2.unquoted.json");
+    public void demo() {
+        demo("demo");
+        demo("form");
+        demo("18610441001_201301");
+    }
+
+    public void demo(final String name) {
+        String keyMapping = readClasspathFile("cdr/" + name + ".0.thin.keyMapping.json");
+        String valueMapping = readClasspathFile("cdr/" + name + ".0.thin.valueMapping.json");
+        String raw = readClasspathFile("cdr/" + name + ".1.raw.json");
+        String unquoted = readClasspathFile("cdr/" + name + ".2.unquoted.json");
         val quoted = new WestJson().json(raw);
         assertThat(quoted).isEqualTo(unquoted);
 
@@ -30,10 +35,10 @@ public class DemoTest {
         assertThat(new WestJson().json(westJson.getKeyMapping())).isEqualTo(keyMapping);
         assertThat(new WestJson().json(westJson.getValueMapping())).isEqualTo(valueMapping);
 
-        String thinExpected = readClasspathFile("cdr/demo.3.unquoted.thin.json");
+        String thinExpected = readClasspathFile("cdr/" + name + ".3.unquoted.thin.json");
         assertThat(thined).isEqualTo(thinExpected);
 
-        String compactExpected = readClasspathFile("cdr/demo.4.unquoted.thin.compact.json");
+        String compactExpected = readClasspathFile("cdr/" + name + ".4.unquoted.thin.compact.json");
         String compact = new WestJson()
                 .unquoted(true).thin(true).compact(true).json(raw);
         assertThat(compact).isEqualTo(compactExpected);
@@ -42,6 +47,8 @@ public class DemoTest {
                 .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
                 .parse(compact);
         JSON rawParsed = (JSON) JSON.parse(raw);
+//        System.out.println(JSON.toJSONString(parsed, true));
+//        System.out.println(JSON.toJSONString(rawParsed, true));
         assertThat(parsed).isEqualTo(rawParsed);
 
         JSON thinParsed = new WestParser()
