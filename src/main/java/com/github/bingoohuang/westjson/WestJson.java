@@ -3,8 +3,6 @@ package com.github.bingoohuang.westjson;
 import com.alibaba.fastjson.JSON;
 import com.github.bingoohuang.westjson.impl.WestJsonMinifier;
 import com.github.bingoohuang.westjson.impl.WestJsonRecover;
-import com.github.bingoohuang.westjson.impl.WestJsonUtils;
-import lombok.val;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/1/30.

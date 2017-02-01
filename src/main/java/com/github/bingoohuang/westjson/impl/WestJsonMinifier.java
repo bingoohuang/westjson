@@ -1,6 +1,6 @@
 package com.github.bingoohuang.westjson.impl;
 
-import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isJsonMetaChar;
+import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isMeta;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
@@ -8,6 +8,8 @@ import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isJsonMetaChar;
 public class WestJsonMinifier {
     private final String json;
     private final StringBuilder minified;
+    private final int ii;
+
     private boolean inQuote = false;
     private StringBuilder sub = new StringBuilder();
     private int firstEscapePos = -1;
@@ -17,13 +19,14 @@ public class WestJsonMinifier {
 
     public WestJsonMinifier(String json) {
         this.json = json;
-        minified = new StringBuilder(json.length());
+        this.ii = json.length();
+        this.minified = new StringBuilder(json.length());
     }
 
     public String minify() {
         curr = minified;
-        for (int ii = json.length(); i <= ii; ++i) {
-            char ch = i < ii ? json.charAt(i) : '"';
+        for (; i < ii; ++i) {
+            char ch = json.charAt(i);
             if (processEsacpe(ch)) continue;
             if (processQuote(ch)) continue;
             if (processQuotedMeta(ch)) continue;
@@ -57,7 +60,7 @@ public class WestJsonMinifier {
     }
 
     private boolean processQuotedMeta(char ch) {
-        if (!(inQuote && isJsonMetaChar(ch))) return false;
+        if (!(inQuote && isMeta(ch))) return false;
 
         if (++escapeTimes == 2) {
             minified.append('"');

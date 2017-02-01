@@ -1,8 +1,6 @@
 package com.github.bingoohuang.westjson;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.github.bingoohuang.westjson.bean.Person;
 import lombok.val;
 import org.junit.Test;
 
@@ -101,9 +99,4 @@ public class HelloWordTest {
     }
 
 
-    @Data @AllArgsConstructor @NoArgsConstructor
-    private static class Person {
-        private String name;
-        private int age;
-    }
 }

@@ -1,77 +1,95 @@
 package com.github.bingoohuang.westjson.impl;
 
-import static com.github.bingoohuang.westjson.impl.WestJsonUtils.isJsonMetaChar;
+import static com.github.bingoohuang.westjson.impl.WestJsonUtils.*;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
 public class WestJsonRecover {
     private final String json;
-    private final StringBuilder recovered;
+    private final StrBuilder res;
     private final int ii;
 
     int i = 0;
     boolean quoted = false;
+    char p, ch, n;
 
     public WestJsonRecover(String json) {
         this.json = json;
         this.ii = json.length();
-        this.recovered = new StringBuilder((int) (json.length() * 1.5));
+        this.res = new StrBuilder((int) (json.length() * 1.5));
     }
-
 
     public String recover() {
         for (; i < ii; ++i) {
-            char ch = json.charAt(i);
-            if (processEscape(ch)) continue;
-            if (processLeftBrace(ch)) continue;
-            if (processQuote(ch)) continue;
-            if (processRightBrace(ch)) continue;
+            p = i == 0 ? ' ' : json.charAt(i - 1);
+            ch = json.charAt(i);
+            n = i + 1 < ii ? json.charAt(i + 1) : ' ';
 
-            recovered.append(ch);
+            if (processEscape()) continue;
+            if (processLeftBrace()) continue;
+            if (processColon()) continue;
+            if (processComma()) continue;
+            if (processRightBrace()) continue;
+
+            res.p(ch);
         }
 
-        return recovered.toString();
+        return res.toString();
     }
 
-    private boolean processEscape(char ch) {
+    private boolean processEscape() {
         if (ch != '\\') return false;
 
-        char ech = json.charAt(++i);
-        if (!isJsonMetaChar(ech)) recovered.append(ch);
-        recovered.append(ech);
+        ++i;
+        if (!isMeta(n)) res.p(ch);
+        res.p(n);
         return true;
     }
 
-    private boolean processLeftBrace(char ch) {
+    private boolean processLeftBrace() {
         if (ch != '{') return false;
 
-        recovered.append(ch);
-        quoted = json.charAt(i + 1) == '"';
-        if (!quoted) recovered.append('"');
+        res.p(ch);
+        quoted = n == '"';
+        if (!quoted && !isBoundary(n)) res.p('"');
         return true;
     }
 
-    private boolean processQuote(char ch) {
-        if (!(ch == ':' || ch == ',')) return false;
+    private boolean processColon() {
+        if (ch != ':') return false;
+
+        if (!isBoundary(p)) res.p('"');
+        res.p(ch);
+        quoted = n == '"';
+        if (!quoted && !isBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+
+        return true;
+    }
+
+    private boolean processComma() {
+        if (ch != ',') return false;
 
         if (quoted) {
-            recovered.append(ch);
+            res.p(ch);
         } else {
-            recovered.append('"');
-            recovered.append(ch);
-            quoted = json.charAt(i + 1) == '"';
-            if (!quoted) recovered.append('"');
+            if (!isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
+            res.p(ch);
+            quoted = n == '"';
+            if (!quoted && !isBoundary(n) && !isRKey(json, i, ii))
+                res.p('"');
         }
         return true;
     }
 
-    private boolean processRightBrace(char ch) {
+
+    private boolean processRightBrace() {
         if (ch != '}') return false;
 
-        if (!quoted) recovered.append('"');
-        recovered.append(ch);
+        if (!quoted && !isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
+        res.p(ch);
         quoted = false;
         return true;
     }
+
 }
