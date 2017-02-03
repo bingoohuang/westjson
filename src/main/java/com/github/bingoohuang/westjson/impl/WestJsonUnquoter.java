@@ -45,10 +45,11 @@ public class WestJsonUnquoter {
     }
 
     private boolean processQuote(char ch) {
-        if (!(ch == '"' || ch == '\'')) return false;
+        if (!(ch == '"')) return false;
 
         if (inQuote) {
-            minified.p(sub);
+            String substr = sub.toString();
+            minified.p(substr);
             if (escapeTimes >= 2) minified.p('"');
         } else {
             sub.empty();

@@ -74,6 +74,4 @@ public class WestJson {
         JSON json = (JSON) JSON.parse(str);
         return toJSONString(compacter.compact(json));
     }
-
-
 }

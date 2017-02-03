@@ -43,7 +43,7 @@ public class DemoTest {
                 .unquoted(true).thin(true).compact(true).json(raw);
         assertThat(compact).isEqualTo(compactExpected);
 
-        JSON parsed = new WestParser().unpact(true)
+        JSON parsed = new WestParser().uncompact(true)
                 .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
                 .parse(compact);
         JSON rawParsed = (JSON) JSON.parse(raw);

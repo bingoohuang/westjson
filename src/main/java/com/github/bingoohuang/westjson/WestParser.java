@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.bingoohuang.westjson.impl.WestJsonQuoter;
 import com.github.bingoohuang.westjson.impl.WestJsonUncompacter;
 import com.github.bingoohuang.westjson.impl.WestJsonUnthiner;
+import com.github.bingoohuang.westjson.utils.WestJsonUtils;
 
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class WestParser {
         return this;
     }
 
-    public WestParser unpact(boolean unpact) {
+    public WestParser uncompact(boolean unpact) {
         this.unpacter = unpact ? new WestJsonUncompacter() : null;
         return this;
     }
@@ -32,13 +33,14 @@ public class WestParser {
     }
 
     public JSON parse(String jsonStr) {
-        String quoted = quoter != null
-                ? quoter.quote(jsonStr)
-                : jsonStr;
-        JSON json = (JSON) JSON.parse(quoted);
-        JSON uncompacted = unpacter != null ? unpacter.uncompact(json) : json;
-        JSON unthin = unthiner != null ? unthiner.unthin(uncompacted) : uncompacted;
-        return unthin;
+        try {
+            String quoted = quoter != null ? quoter.quote(jsonStr) : jsonStr;
+            JSON json = WestJsonUtils.parseJSON(quoted);
+            JSON uncompacted = unpacter != null ? unpacter.uncompact(json) : json;
+            return unthiner != null ? unthiner.unthin(uncompacted) : uncompacted;
+        } catch (Throwable e) {
+            throw new RuntimeException("parse error:" + jsonStr, e);
+        }
     }
 
     public <T> T parse(String jsonStr, Class<T> tClass) {

@@ -13,7 +13,7 @@ public class WestJsonQuoter {
     private int ii;
 
     int i = 0;
-    boolean quoted = false;
+    int quoted = -1;
     char p, ch, n;
 
     public void init(String json) {
@@ -31,15 +31,27 @@ public class WestJsonQuoter {
             n = i + 1 < ii ? json.charAt(i + 1) : ' ';
 
             if (processEscape()) continue;
-            if (processLeftBrace()) continue;
-            if (processColon()) continue;
-            if (processComma()) continue;
-            if (processRightBrace()) continue;
+
+            if (quoted < 0) {
+                if (processLeftBrace()) continue;
+                if (processColon()) continue;
+                if (processComma()) continue;
+                if (processRightBrace()) continue;
+            } else {
+                if (processQuote() && i > quoted + 1) {
+                    quoted = -1;
+                    continue;
+                }
+            }
 
             res.p(ch);
         }
 
         return res.toString();
+    }
+
+    private boolean processQuote() {
+        return ch == '\"';
     }
 
     private boolean processEscape() {
@@ -55,8 +67,8 @@ public class WestJsonQuoter {
         if (!isLBoundary(ch)) return false;
 
         res.p(ch);
-        quoted = n == '"';
-        if (!quoted && !isBoundary(n)) res.p('"');
+        quoted = n == '"' ? i : -1;
+        if (quoted < 0 && !isBoundary(n)) res.p('"');
         return true;
     }
 
@@ -65,8 +77,8 @@ public class WestJsonQuoter {
 
         if (!isBoundary(p)) res.p('"');
         res.p(ch);
-        quoted = n == '"';
-        if (!quoted && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+        quoted = n == '"' ? i : -1;
+        if (quoted < 0 && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
 
         return true;
     }
@@ -74,15 +86,11 @@ public class WestJsonQuoter {
     private boolean processComma() {
         if (ch != ',') return false;
 
-        if (quoted) {
-            res.p(ch);
-        } else {
-            if (!isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
-            res.p(ch);
-            quoted = n == '"';
-            if (!quoted && !isBoundary(n) && !isRKey(json, i, ii))
-                res.p('"');
-        }
+        if (!isRBoundary(p) && !isLKey(json, i, ii)) res.p('"');
+        res.p(ch);
+        quoted = n == '"' ? i : -1;
+        if (quoted < 0 && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+
         return true;
     }
 
@@ -90,9 +98,9 @@ public class WestJsonQuoter {
     private boolean processRightBrace() {
         if (!isRBoundary(ch)) return false;
 
-        if (!quoted && !isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
+        if (quoted < 0 && !isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
         res.p(ch);
-        quoted = false;
+        quoted = -1;
         return true;
     }
 

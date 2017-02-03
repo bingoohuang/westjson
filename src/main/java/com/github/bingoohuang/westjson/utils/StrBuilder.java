@@ -42,4 +42,9 @@ public class StrBuilder {
     public int len() {
         return sb.length();
     }
+
+    public StrBuilder p(String s) {
+        sb.append(s);
+        return this;
+    }
 }

@@ -29,4 +29,11 @@ public class WestJsonUnquoterTest {
         String minify = new WestJsonUnquoter().unquote(json);
         assertThat(minify).isEqualTo("{name:,age:32}");
     }
+
+    @Test
+    public void ignoreNumber() {
+        val json = "{age:\"32\"}";
+        String minify = new WestJsonUnquoter().unquote(json);
+        assertThat(minify).isEqualTo("{age:32}");
+    }
 }

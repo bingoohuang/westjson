@@ -14,6 +14,7 @@ import lombok.val;
 import java.util.Map;
 
 import static com.alibaba.fastjson.JSON.toJSONString;
+import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
 import static com.github.bingoohuang.westjson.utils.WestJsonUtils.bytesLen;
 
 /**
@@ -30,27 +31,22 @@ public class WestJsonThiner {
     @Getter private Map<String, String> keyMapping;
     @Getter private Map<String, String> valueMapping;
 
-    public ValueFilter createSecondValueFilter() {
-        // 第一遍过滤器，如果启动了值映射分析，则还需要第二个过滤器，在第一次过滤器中进行值映射分析。
-        return new ValueFilter() {
+
+    private NameFilter createNameFilter() {
+        return new NameFilter() {
             @Override
-            public Object process(Object source, String name, Object value) {
-                if (!(value instanceof String)) return value;
+            public String process(Object source, String name, Object value) {
+                String mappedName = innerKeyMapping.get(name);
+                if (mappedName != null) return mappedName;
 
-                val key = (String) value;
-                if (bytesLen(key) <= 3) return key;
+                mappedName = BaseX.base62(innerKeyMapping.size());
+                innerKeyMapping.put(name, mappedName);
 
-                String valueCode = innerValueMapping.get(key);
-                if (valueCode != null) return '@' + valueCode;
-
-                if (valueBag.count(key) < 3) return value;
-
-                valueCode = BaseX.base62(innerValueMapping.size());
-                innerValueMapping.put(key, valueCode);
-                return '@' + valueCode;
+                return mappedName;
             }
         };
     }
+
 
     private ValueFilter createFirstValueFilter() {
         return new ValueFilter() {
@@ -70,24 +66,31 @@ public class WestJsonThiner {
         };
     }
 
-    private NameFilter createNameFilter() {
-        return new NameFilter() {
+    public ValueFilter createSecondValueFilter() {
+        // 第一遍过滤器，如果启动了值映射分析，则还需要第二个过滤器，在第一次过滤器中进行值映射分析。
+        return new ValueFilter() {
             @Override
-            public String process(Object source, String name, Object value) {
-                String mappedName = innerKeyMapping.get(name);
-                if (mappedName != null) return mappedName;
+            public Object process(Object source, String name, Object value) {
+                if (!(value instanceof String)) return value;
 
-                mappedName = BaseX.base62(innerKeyMapping.size());
-                innerKeyMapping.put(name, mappedName);
+                val key = (String) value;
+                if (bytesLen(key) <= 3) return key;
 
-                return mappedName;
+                String valueCode = innerValueMapping.get(key);
+                if (valueCode != null) return '@' + valueCode;
+
+                if (valueBag.count(key) <= 2) return value;
+
+                valueCode = BaseX.base62(innerValueMapping.size());
+                innerValueMapping.put(key, valueCode);
+                return '@' + valueCode;
             }
         };
     }
 
     public String thin(Object bean) {
         toJSONString(bean, new SerializeFilter[]{firstValueFilter});
-        val ret = toJSONString(bean, new SerializeFilter[]{nameFilter, secondValueFilter});
+        val ret = toJSONString(bean, new SerializeFilter[]{nameFilter, secondValueFilter}, WriteMapNullValue);
 
         this.keyMapping = WestJsonUtils.invert(innerKeyMapping);
         this.valueMapping = WestJsonUtils.invert(innerValueMapping);
