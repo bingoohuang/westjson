@@ -12,19 +12,10 @@ import java.util.Map;
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
 public class WestParser {
-    private WestJsonQuoter quoter = new WestJsonQuoter();
-    private WestJsonUncompacter unpacter;
     private WestJsonUnthiner unthiner;
 
-    public WestParser quoted(boolean quoted) {
-        this.quoter = quoted ? new WestJsonQuoter() : null;
-        return this;
-    }
-
-    public WestParser uncompact(boolean unpact) {
-        this.unpacter = unpact ? new WestJsonUncompacter() : null;
-        return this;
-    }
+    public static final int QUOTED = 0x01;
+    public static final int UNCOMPACT = 0x04;
 
     public WestParser unthin(Map<String, String> keyMapping,
                              Map<String, String> valueMapping) {
@@ -33,10 +24,16 @@ public class WestParser {
     }
 
     public JSON parse(String jsonStr) {
+        return parse(jsonStr, QUOTED);
+    }
+
+    public JSON parse(String jsonStr, int flags) {
         try {
-            String quoted = quoter != null ? quoter.quote(jsonStr) : jsonStr;
+            String quoted = (flags & QUOTED) > 0
+                    ? new WestJsonQuoter().quote(jsonStr) : jsonStr;
             JSON json = WestJsonUtils.parseJSON(quoted);
-            JSON uncompacted = unpacter != null ? unpacter.uncompact(json) : json;
+            JSON uncompacted = (flags & UNCOMPACT) > 0
+                    ? new WestJsonUncompacter().uncompact(json) : json;
             return unthiner != null ? unthiner.unthin(uncompacted) : uncompacted;
         } catch (Throwable e) {
             throw new RuntimeException("parse error:" + jsonStr, e);

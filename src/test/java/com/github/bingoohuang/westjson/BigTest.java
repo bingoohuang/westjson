@@ -6,7 +6,6 @@ import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -21,11 +20,9 @@ import static com.github.bingoohuang.westjson.utils.WestJsonUtils.convertNumberT
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
 public class BigTest {
-    @Test @Ignore
+    @Test
     public void test() {
         bigTest("big/gateway.1.log.gz");
-        bigTest("big/gateway.2.log.gz");
-        bigTest("big/gateway.3.log.gz");
     }
 
     @SneakyThrows
@@ -59,14 +56,13 @@ public class BigTest {
         totalOldSize += cdrJson.length();
 
         try {
-            WestJson westJson = new WestJson().unquoted(true).thin(true).compact(true);
-            String compressed = westJson.json(cdrJson);
+            WestJson westJson = new WestJson();
+            String compressed = westJson.json(cdrJson, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
             totalCompactSize += compressed.length();
 
-            WestParser westParser = new WestParser().quoted(true)
-                    .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
-                    .uncompact(true);
-            JSON parse = westParser.parse(compressed);
+            WestParser westParser = new WestParser()
+                    .unthin(westJson.getKeyMapping(), westJson.getValueMapping());
+            JSON parse = westParser.parse(compressed, WestParser.QUOTED | WestParser.UNCOMPACT);
             JSON direct = (JSON) JSON.parse(cdrJson);
 
             if (parse.equals(direct)) return;

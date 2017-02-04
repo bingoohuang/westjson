@@ -30,8 +30,8 @@ public class DemoTest {
         val quoted = new WestJson().json(raw);
         assertThat(quoted).isEqualTo(unquoted);
 
-        WestJson westJson = new WestJson().thin(true);
-        val thined = westJson.json(raw);
+        WestJson westJson = new WestJson();
+        val thined = westJson.json(raw, WestJson.UNQUOTED | WestJson.THIN);
         assertThat(new WestJson().json(westJson.getKeyMapping())).isEqualTo(keyMapping);
         assertThat(new WestJson().json(westJson.getValueMapping())).isEqualTo(valueMapping);
 
@@ -39,13 +39,12 @@ public class DemoTest {
         assertThat(thined).isEqualTo(thinExpected);
 
         String compactExpected = readClasspathFile("cdr/" + name + ".4.unquoted.thin.compact.json");
-        String compact = new WestJson()
-                .unquoted(true).thin(true).compact(true).json(raw);
+        String compact = new WestJson().json(raw, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
         assertThat(compact).isEqualTo(compactExpected);
 
-        JSON parsed = new WestParser().uncompact(true)
+        JSON parsed = new WestParser()
                 .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
-                .parse(compact);
+                .parse(compact, WestParser.QUOTED | WestParser.UNCOMPACT);
         JSON rawParsed = (JSON) JSON.parse(raw);
 //        System.out.println(JSON.toJSONString(parsed, true));
 //        System.out.println(JSON.toJSONString(rawParsed, true));
@@ -56,7 +55,7 @@ public class DemoTest {
                 .parse(thined);
         assertThat(thinParsed).isEqualTo(rawParsed);
 
-        JSON quotedParsed = new WestParser().quoted(true).parse(quoted);
+        JSON quotedParsed = new WestParser().parse(quoted, WestParser.QUOTED | WestParser.UNCOMPACT);
         assertThat(quotedParsed).isEqualTo(rawParsed);
     }
 

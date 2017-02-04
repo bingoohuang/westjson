@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.github.bingoohuang.westjson.WestJson;
 import com.github.bingoohuang.westjson.WestParser;
 import lombok.val;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -114,9 +113,9 @@ public class WestJsonQuoterTest {
         assertThat(minify).isEqualTo(str);
     }
 
-    @Test @Ignore
+    @Test
     public void test2() {
-        val text = "{'jdbcUrl':'jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8'}";
+        val text = "{\"jdbcUrl\":\"jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8\"}";
         val text2 = "{jdbcUrl:\"jdbc:wrap-jdbc:filters=default:name=com.alibaba.dragoon.monitor:jdbc:mysql://10.20.129.167/dragoon_v25monitordb?useUnicode=true&characterEncoding=UTF-8\"}";
         String minify = new WestJsonUnquoter().unquote(text);
         assertThat(minify).isEqualTo(text2);
@@ -149,12 +148,12 @@ public class WestJsonQuoterTest {
     @Test
     public void test5() {
         val str = "{\"trxid\":\"GWAY201305100001309552\",\"rspmsg\":{\"imsi\":\"\",\"nextproductid\":null,\"nowpackageinfo\":{\"nowbillingcode\":\"\",\"nowbillingname\":\"\",\"nowpackagecode\":\"99104722\"},\"productid\":\"\",\"userid\":\"\"}}";
-        WestJson westJson = new WestJson().thin(true).compact(true);
-        String json = westJson.json(str);
+        WestJson westJson = new WestJson();
+        String json = westJson.json(str, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
 
-        JSON parse = new WestParser().quoted(true)
+        JSON parse = new WestParser()
                 .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
-                .uncompact(true).parse(json);
+                .parse(json, WestParser.QUOTED | WestParser.UNCOMPACT);
         JSON parse1 = (JSON) JSON.parse(str);
         assertThat(parse1.toJSONString()).isEqualTo(parse.toJSONString());
     }
