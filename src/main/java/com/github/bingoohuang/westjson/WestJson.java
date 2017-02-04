@@ -1,9 +1,8 @@
 package com.github.bingoohuang.westjson;
 
 import com.alibaba.fastjson.JSON;
-import com.github.bingoohuang.westjson.impl.WestJsonCompacter;
-import com.github.bingoohuang.westjson.impl.WestJsonThiner;
-import com.github.bingoohuang.westjson.impl.WestJsonUnquoter;
+import com.github.bingoohuang.westjson.impl.*;
+import com.github.bingoohuang.westjson.utils.WestJsonUtils;
 
 import java.util.Map;
 
@@ -25,11 +24,11 @@ public class WestJson {
 
     private WestJsonThiner thiner;
 
-    public Map<String, String> getKeyMapping() {
+    public Map<String, String> keyMapping() {
         return thiner != null ? thiner.getKeyMapping() : null;
     }
 
-    public Map<String, String> getValueMapping() {
+    public Map<String, String> valueMapping() {
         return thiner != null ? thiner.getValueMapping() : null;
     }
 
@@ -70,5 +69,34 @@ public class WestJson {
         JSON json = (JSON) JSON.parse(str);
         JSON compacted = new WestJsonCompacter().compact(json);
         return toJSONString(compacted);
+    }
+
+    private WestJsonUnthiner unthiner;
+
+    public WestJson unthin(Map<String, String> keyMapping,
+                           Map<String, String> valueMapping) {
+        this.unthiner = new WestJsonUnthiner(keyMapping, valueMapping);
+        return this;
+    }
+
+    public JSON parse(String jsonStr) {
+        return parse(jsonStr, UNQUOTED);
+    }
+
+    public JSON parse(String jsonStr, int flags) {
+        try {
+            String quoted = (flags & UNQUOTED) > 0
+                    ? new WestJsonQuoter().quote(jsonStr) : jsonStr;
+            JSON json = WestJsonUtils.parseJSON(quoted);
+            JSON uncompacted = (flags & COMPACT) > 0
+                    ? new WestJsonUncompacter().uncompact(json) : json;
+            return unthiner != null ? unthiner.unthin(uncompacted) : uncompacted;
+        } catch (Throwable e) {
+            throw new RuntimeException("parse error:" + jsonStr, e);
+        }
+    }
+
+    public <T> T parse(String jsonStr, Class<T> tClass) {
+        return parse(jsonStr).toJavaObject(tClass);
     }
 }

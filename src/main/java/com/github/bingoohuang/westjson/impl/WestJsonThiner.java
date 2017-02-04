@@ -90,7 +90,9 @@ public class WestJsonThiner {
 
     public String thin(Object bean) {
         toJSONString(bean, new SerializeFilter[]{firstValueFilter});
-        val ret = toJSONString(bean, new SerializeFilter[]{nameFilter, secondValueFilter}, WriteMapNullValue);
+        val ret = toJSONString(bean,
+                new SerializeFilter[]{nameFilter, secondValueFilter},
+                WriteMapNullValue);
 
         this.keyMapping = WestJsonUtils.invert(innerKeyMapping);
         this.valueMapping = WestJsonUtils.invert(innerValueMapping);

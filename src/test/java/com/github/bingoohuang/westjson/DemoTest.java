@@ -32,8 +32,8 @@ public class DemoTest {
 
         WestJson westJson = new WestJson();
         val thined = westJson.json(raw, WestJson.UNQUOTED | WestJson.THIN);
-        assertThat(new WestJson().json(westJson.getKeyMapping())).isEqualTo(keyMapping);
-        assertThat(new WestJson().json(westJson.getValueMapping())).isEqualTo(valueMapping);
+        assertThat(new WestJson().json(westJson.keyMapping())).isEqualTo(keyMapping);
+        assertThat(new WestJson().json(westJson.valueMapping())).isEqualTo(valueMapping);
 
         String thinExpected = readClasspathFile("cdr/" + name + ".3.unquoted.thin.json");
         assertThat(thined).isEqualTo(thinExpected);
@@ -42,20 +42,20 @@ public class DemoTest {
         String compact = new WestJson().json(raw, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
         assertThat(compact).isEqualTo(compactExpected);
 
-        JSON parsed = new WestParser()
-                .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
-                .parse(compact, WestParser.QUOTED | WestParser.UNCOMPACT);
+        JSON parsed = new WestJson()
+                .unthin(westJson.keyMapping(), westJson.valueMapping())
+                .parse(compact, WestJson.UNQUOTED | WestJson.COMPACT);
         JSON rawParsed = (JSON) JSON.parse(raw);
 //        System.out.println(JSON.toJSONString(parsed, true));
 //        System.out.println(JSON.toJSONString(rawParsed, true));
         assertThat(parsed).isEqualTo(rawParsed);
 
-        JSON thinParsed = new WestParser()
-                .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
+        JSON thinParsed = new WestJson()
+                .unthin(westJson.keyMapping(), westJson.valueMapping())
                 .parse(thined);
         assertThat(thinParsed).isEqualTo(rawParsed);
 
-        JSON quotedParsed = new WestParser().parse(quoted, WestParser.QUOTED | WestParser.UNCOMPACT);
+        JSON quotedParsed = new WestJson().parse(quoted, WestJson.UNQUOTED | WestJson.COMPACT);
         assertThat(quotedParsed).isEqualTo(rawParsed);
     }
 

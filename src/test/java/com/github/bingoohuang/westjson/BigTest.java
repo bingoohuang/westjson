@@ -6,6 +6,7 @@ import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -14,13 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import static com.github.bingoohuang.westjson.WestJson.*;
 import static com.github.bingoohuang.westjson.utils.WestJsonUtils.convertNumberToString;
 
 /**
  * @author bingoohuang [bingoohuang@gmail.com] Created on 2017/2/1.
  */
 public class BigTest {
-    @Test
+    @Test @Ignore
     public void test() {
         bigTest("big/gateway.1.log.gz");
     }
@@ -30,7 +32,7 @@ public class BigTest {
         val cl = BigTest.class.getClassLoader();
         @Cleanup val is = cl.getResourceAsStream(classpathFileName);
         @Cleanup val gis = new GZIPInputStream(is);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(gis, Charsets.UTF_8));
+        val reader = new BufferedReader(new InputStreamReader(gis, Charsets.UTF_8));
         long fileStart = System.currentTimeMillis();
         int totalJsonsNum = 0;
         for (String line; (line = reader.readLine()) != null; ) {
@@ -57,12 +59,12 @@ public class BigTest {
 
         try {
             WestJson westJson = new WestJson();
-            String compressed = westJson.json(cdrJson, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
+            String compressed = westJson.json(cdrJson, UNQUOTED | THIN | COMPACT);
             totalCompactSize += compressed.length();
 
-            WestParser westParser = new WestParser()
-                    .unthin(westJson.getKeyMapping(), westJson.getValueMapping());
-            JSON parse = westParser.parse(compressed, WestParser.QUOTED | WestParser.UNCOMPACT);
+            WestJson westParser = new WestJson()
+                    .unthin(westJson.keyMapping(), westJson.valueMapping());
+            JSON parse = westParser.parse(compressed, UNQUOTED | COMPACT);
             JSON direct = (JSON) JSON.parse(cdrJson);
 
             if (parse.equals(direct)) return;
@@ -70,7 +72,7 @@ public class BigTest {
             if (parse.toJSONString().equals(convertNumberToString(cdrJson)))
                 return;
 
-            System.out.println("keyMap:" + westJson.getKeyMapping());
+            System.out.println("keyMap:" + westJson.keyMapping());
             System.out.println("cdrJson:" + cdrJson);
             System.out.println("parse:" + parse);
             System.out.println("direct:" + direct);

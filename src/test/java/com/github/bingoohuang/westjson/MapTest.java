@@ -20,7 +20,7 @@ public class MapTest {
         String json = new WestJson().json(map);
         String expected = "{name:bingoo,age:123}";
         assertThat(json).isEqualTo(expected);
-        Map<String, String> mapParsed = new WestParser().parse(expected, Map.class);
+        Map<String, String> mapParsed = new WestJson().parse(expected, Map.class);
         assertThat(mapParsed).isEqualTo(
                 of("name", "bingoo",
                         "age", "123"));
@@ -38,7 +38,7 @@ public class MapTest {
         String json = new WestJson().json(map);
         String expected = "{name:bingoo,nested:{sth:hello,age:123}}";
         assertThat(json).isEqualTo(expected);
-        Map<String, Object> mapParsed = new WestParser().parse(expected, Map.class);
+        Map<String, Object> mapParsed = new WestJson().parse(expected, Map.class);
         assertThat(mapParsed).isEqualTo(
                 of("name", "bingoo",
                         "nested", of("age", "123", "sth", "hello")));

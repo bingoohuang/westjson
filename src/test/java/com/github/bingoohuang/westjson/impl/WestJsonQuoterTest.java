@@ -2,7 +2,6 @@ package com.github.bingoohuang.westjson.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.bingoohuang.westjson.WestJson;
-import com.github.bingoohuang.westjson.WestParser;
 import lombok.val;
 import org.junit.Test;
 
@@ -151,9 +150,9 @@ public class WestJsonQuoterTest {
         WestJson westJson = new WestJson();
         String json = westJson.json(str, WestJson.UNQUOTED | WestJson.THIN | WestJson.COMPACT);
 
-        JSON parse = new WestParser()
-                .unthin(westJson.getKeyMapping(), westJson.getValueMapping())
-                .parse(json, WestParser.QUOTED | WestParser.UNCOMPACT);
+        JSON parse = new WestJson()
+                .unthin(westJson.keyMapping(), westJson.valueMapping())
+                .parse(json, WestJson.UNQUOTED | WestJson.COMPACT);
         JSON parse1 = (JSON) JSON.parse(str);
         assertThat(parse1.toJSONString()).isEqualTo(parse.toJSONString());
     }
