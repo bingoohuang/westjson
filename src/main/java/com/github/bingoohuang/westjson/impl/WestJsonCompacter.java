@@ -26,14 +26,13 @@ public class WestJsonCompacter {
         val compactJsonObject = new JSONObject();
         for (val entry : jsonObject.entrySet()) {
             Object value = entry.getValue();
-            String key = entry.getKey();
             if (value instanceof JSONArray) {
                 value = compactConvert((JSONArray) value);
             } else if (value instanceof JSONObject) {
                 value = compactConvert((JSONObject) value);
             }
 
-            compactJsonObject.put(key, value);
+            compactJsonObject.put(entry.getKey(), value);
         }
 
         return compactJsonObject;

@@ -14,7 +14,7 @@ public class WestJsonQuoter {
 
     int i = 0;
     int quoted = -1;
-    char p, ch, n;
+    char prevCh, currCh, nextCh;
 
     public void init(String json) {
         this.json = json;
@@ -26,9 +26,9 @@ public class WestJsonQuoter {
         init(json);
 
         for (; i < ii; ++i) {
-            p = i == 0 ? ' ' : json.charAt(i - 1);
-            ch = json.charAt(i);
-            n = i + 1 < ii ? json.charAt(i + 1) : ' ';
+            prevCh = i == 0 ? ' ' : json.charAt(i - 1);
+            currCh = json.charAt(i);
+            nextCh = i + 1 < ii ? json.charAt(i + 1) : ' ';
 
             if (processEscape()) continue;
 
@@ -44,62 +44,62 @@ public class WestJsonQuoter {
                 }
             }
 
-            res.p(ch);
+            res.p(currCh);
         }
 
         return res.toString();
     }
 
     private boolean processQuote() {
-        return ch == '\"';
+        return currCh == '\"';
     }
 
     private boolean processEscape() {
-        if (ch != '\\') return false;
+        if (currCh != '\\') return false;
 
         ++i;
-        if (!isMeta(n)) res.p(ch);
-        res.p(n);
+        if (!isMeta(nextCh)) res.p(currCh);
+        res.p(nextCh);
         return true;
     }
 
     private boolean processLeftBrace() {
-        if (!isLBoundary(ch)) return false;
+        if (!isLBoundary(currCh)) return false;
 
-        res.p(ch);
-        quoted = n == '"' ? i : -1;
-        if (quoted < 0 && !isBoundary(n)) res.p('"');
+        res.p(currCh);
+        quoted = nextCh == '"' ? i : -1;
+        if (quoted < 0 && !isBoundary(nextCh)) res.p('"');
         return true;
     }
 
     private boolean processColon() {
-        if (ch != ':') return false;
+        if (currCh != ':') return false;
 
-        if (!isBoundary(p)) res.p('"');
-        res.p(ch);
-        quoted = n == '"' ? i : -1;
-        if (quoted < 0 && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+        if (!isBoundary(prevCh)) res.p('"');
+        res.p(currCh);
+        quoted = nextCh == '"' ? i : -1;
+        if (quoted < 0 && !isLBoundary(nextCh) && !isRKey(json, i, ii)) res.p('"');
 
         return true;
     }
 
     private boolean processComma() {
-        if (ch != ',') return false;
+        if (currCh != ',') return false;
 
-        if (!isRBoundary(p) && !isLKey(json, i, ii)) res.p('"');
-        res.p(ch);
-        quoted = n == '"' ? i : -1;
-        if (quoted < 0 && !isLBoundary(n) && !isRKey(json, i, ii)) res.p('"');
+        if (!isRBoundary(prevCh) && !isLKey(json, i, ii)) res.p('"');
+        res.p(currCh);
+        quoted = nextCh == '"' ? i : -1;
+        if (quoted < 0 && !isLBoundary(nextCh) && !isRKey(json, i, ii)) res.p('"');
 
         return true;
     }
 
 
     private boolean processRightBrace() {
-        if (!isRBoundary(ch)) return false;
+        if (!isRBoundary(currCh)) return false;
 
-        if (quoted < 0 && !isBoundary(p) && !isLKey(json, i, ii)) res.p('"');
-        res.p(ch);
+        if (quoted < 0 && !isBoundary(prevCh) && !isLKey(json, i, ii)) res.p('"');
+        res.p(currCh);
         quoted = -1;
         return true;
     }

@@ -10,7 +10,7 @@ import lombok.val;
  */
 public class WestJsonUncompacter {
     public JSON uncompact(JSON object) {
-        JSON result = null;
+        JSON result = object;
         if (object instanceof JSONObject) {
             result = uncompact((JSONObject) object);
         } else if (object instanceof JSONArray) {
